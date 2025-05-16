@@ -4,7 +4,8 @@
   export let articleId: string;
   
   interface Comment {
-    _id: string;
+    _id?: string;
+    uuid: string;
     article_id: string;
     user_id: string;
     content: string;
@@ -86,6 +87,7 @@
       if (!response.ok) throw new Error('Failed to add comment');
       
       const comment = await response.json();
+      console.log('Added new comment:', comment);
       comments = [comment, ...comments]; // Add new comment at the beginning
       newComment = '';
     } catch (e) {
@@ -94,22 +96,19 @@
     }
   }
 
-  async function deleteComment(commentId: string) {
+  async function deleteComment(comment: Comment) {
     try {
       error = '';
-      const response = await fetch(`http://localhost:8000/api/comments/${encodeURIComponent(commentId)}`, {
+      const response = await fetch(`http://localhost:8000/api/comments/${encodeURIComponent(comment.uuid)}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to delete comment');
       }
-      
-      comments = comments.filter(c => c._id !== commentId);
+      // Only remove the deleted comment from the UI
+      comments = comments.filter(c => c.uuid !== comment.uuid);
     } catch (e: any) {
       error = e.message || 'Failed to delete comment';
       console.error('Delete error:', e);
@@ -141,7 +140,7 @@
     <p class="no-comments">No comments yet. Be the first to comment!</p>
   {:else}
     <div class="comments-list">
-      {#each comments as comment, index (comment._id || index)}
+      {#each comments as comment, index (comment.uuid || index)}
         <div class="comment">
           <div class="comment-content">
             <p>{comment.content}</p>
@@ -152,9 +151,13 @@
               {/if}
             </small>
           </div>
-          <button class="delete-btn" on:click={() => deleteComment(comment._id)}>
-            Delete
-          </button>
+          {#if comment.uuid}
+            <button class="delete-btn" on:click={() => deleteComment(comment)}>
+              Delete
+            </button>
+          {:else}
+            <small class="error">Cannot delete: Missing ID</small>
+          {/if}
         </div>
       {/each}
     </div>

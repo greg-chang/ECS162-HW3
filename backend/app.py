@@ -68,16 +68,16 @@ def update_comment(comment_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/comments/<comment_id>', methods=['DELETE'])
-def delete_comment(comment_id):
+@app.route('/api/comments/<comment_uuid>', methods=['DELETE'])
+def delete_comment(comment_uuid):
     try:
-        if comment_service.delete_comment(comment_id):
-            return '', 204
-        return jsonify({'error': 'Comment not found'}), 404
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+        success = comment_service.delete_comment(comment_uuid)
+        if success:
+            return jsonify({"message": "Comment deleted"}), 200
+        else:
+            return jsonify({"error": "Comment not found"}), 404
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 400
 
 @app.route('/')
 @app.route('/<path:path>')

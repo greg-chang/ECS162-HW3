@@ -15,10 +15,6 @@ app = Flask(__name__, static_folder=static_path, template_folder=template_path)
 CORS(app)
 article_service = ArticleService()
 
-@app.route('/api/key')
-def get_key():
-    return jsonify({'apiKey': os.getenv('NYT_API_KEY')})
-
 @app.route('/api/articles')
 def get_articles():
     page = request.args.get('page', default=0, type=int)

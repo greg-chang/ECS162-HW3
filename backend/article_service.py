@@ -16,6 +16,39 @@ class ArticleService:
         """Helper function to delay execution"""
         time.sleep(ms / 1000)  # Convert ms to seconds
 
+    def _check_pagination_limits(self, page: int, total_hits: int) -> bool:
+        """Check if we've reached pagination limits"""
+        current_offset = page * self.results_per_page
+        return current_offset >= self.max_results or total_hits == 0
+
+    def _format_article_response(self, data: Dict[str, Any], page: int) -> Dict[str, Any]:
+        """Format the article response for the frontend"""
+        total_hits = data['response']['metadata']['hits']
+        
+        if self._check_pagination_limits(page, total_hits) or data['response']['docs'] is None:
+            return {
+                'articles': [],
+                'has_more': False,
+                'total_hits': total_hits
+            }
+
+        return {
+            'articles': data['response']['docs'],
+            'has_more': len(data['response']['docs']) > 0,
+            'total_hits': total_hits
+        }
+
+    def _make_nyt_request(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Make a request to the NYT API with error handling"""
+        response = requests.get(self.base_url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        if not data.get('response'):
+            raise ValueError('Invalid API response structure')
+
+        return data
+
     def fetch_articles(self, page: int = 0, locations: List[str] = None) -> Dict[str, Any]:
         """
         Fetch articles with pagination, retry logic, and error handling
@@ -38,33 +71,13 @@ class ArticleService:
                 # Add delay between requests to prevent rate limiting
                 self._delay(self.rate_limit_delay)
                 
-                response = requests.get(self.base_url, params=params)
-                response.raise_for_status()
-                data = response.json()
-
-                if not data.get('response'):
-                    raise ValueError('Invalid API response structure')
-
+                data = self._make_nyt_request(params)
+                
                 if data['response'].get('docs') is None and retry_count < self.max_retries:
                     retry_count += 1
                     continue
 
-                # Check if we've reached the maximum number of results
-                total_hits = data['response']['metadata']['hits']
-                current_offset = page * self.results_per_page
-                
-                if current_offset >= self.max_results or data['response']['docs'] is None or total_hits == 0:
-                    return {
-                        'articles': [],
-                        'has_more': False,
-                        'total_hits': total_hits
-                    }
-
-                return {
-                    'articles': data['response']['docs'],
-                    'has_more': len(data['response']['docs']) > 0,
-                    'total_hits': total_hits
-                }
+                return self._format_article_response(data, page)
 
             except requests.exceptions.RequestException as e:
                 if retry_count < self.max_retries:

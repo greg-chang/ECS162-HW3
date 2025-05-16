@@ -31,9 +31,6 @@
     };
   });
 
-  function handleLogin() {
-    window.location.href = '/login';
-  }
 </script>
 
 <header>
@@ -50,5 +47,5 @@
         </div>
     </div>
     <hr>
-    <button class="login-btn" on:click={handleLogin}>LOG IN</button>
+    <a class="login-btn" href="/login">LOG IN</a>
 </header> 

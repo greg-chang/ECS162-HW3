@@ -1,8 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getFormattedDate } from '../utils/dateUtils';
-
-  export let apiKey: string = '';
   
   // Date formatting
   let currentDate: string = '';

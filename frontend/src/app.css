@@ -1,79 +1,338 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+   body {
+    font-family: Georgia, serif;
+    font-size: 16px; /* Base font size */
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
+/* ==========================================================================
+   Typography
+   ========================================================================== */
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
 }
 
-.card {
-  padding: 2em;
+h2 {
+    font-size: 2rem;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
 }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+p {
+    color: #5A5A5A;
+    font-size: 1rem; 
+    line-height: 1.5;
+    margin-top: 20px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
+/* ==========================================================================
+   Header Components
+   ========================================================================== */
+.header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 20px 0;
+}
+
+.date-display {
+    position: absolute;
+    left: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.7rem;
+    color: black;
+    text-align: left;
+}
+/*Date display css defined in script.js*/
+.date-display p {
+    margin: 5px 0 0 0;
+    font-size: 0.6rem;
+    font-weight: normal;
+    color: black;
+}
+
+.date-display .day {
+    font-weight: bold;
+}
+
+.date-display .date {
+    color: black;
+    font-weight: bold;
+}
+
+@media (min-width: 768px) {
+    .date-display {
+        font-size: 0.9rem;
+    }
+    .date-display p {
+        font-size: 0.8rem;
+    }
+}
+
+.nyt-logo {
+    display: flex;
+    justify-content: center;
+}
+
+.nyt-logo img {
+    max-width: 100%;
+    height: auto;
+    width: 200px; /* Mobile default */
+    object-fit: contain;
+}
+
+@media (min-width: 768px) {
+    .nyt-logo img {
+        width: 300px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .nyt-logo img {
+        width: 400px;
+    }
+}
+
+hr {
+    border: 1px solid #D9D9D9;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+/* ==========================================================================
+   Grid Layout
+   ========================================================================== */
+.container {
+    display: grid;
+    gap: 10px 40px;
+    padding-left: 20px;
+    padding-right: 20px;
+    grid-template-columns: 1fr; 
+}
+
+/* ==========================================================================
+   Column Styles
+   ========================================================================== */
+.column {
     background-color: #ffffff;
+    padding-right: 20px;
+    margin-right: -20px;
+    border-right: 2px solid #D9D9D9;
+    position: relative;
+}
+
+.column:last-child {
+    border-right: none;
+    padding-right: 0;
+    margin-right: 0;
+}
+
+.column img {
+    width: 100%;
+    height: auto;
+    display: block;
+    padding-bottom: 20px;
+}
+
+/* ==========================================================================
+   Section Styles
+   ========================================================================== */
+.section {
+    position: relative;
+    padding-top: 20px;
+    border-top: 2px solid #D9D9D9;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.section-content {
+    flex: 1;
+}
+
+.section hr {
+    border: 1px solid #D9D9D9;
+    margin: 20px 0 0 0;
+    width: 100%;
+}
+
+/* Update section height in media queries */
+@media (min-width: 768px) {
+    .section {
+        min-height: 250px; 
+    }
+}
+
+@media (min-width: 1024px) {
+    .section {
+        min-height: 500px;
+    }
+}
+
+/* ==========================================================================
+   Responsive Layouts
+   ========================================================================== */
+/* Mobile Layout (default) */
+.column:nth-child(1) { order: 2; } /* Left column */
+.column:nth-child(2) { order: 1; } /* Middle column */
+.column:nth-child(3) { order: 3; } /* Right column */
+
+@media (max-width: 767px) {
+    .date-display {
+        display: none;
+    }
+
+    /* Remove right border in mobile since all columns stack */
+    .column {
+        border-right: none;
+        padding-right: 0;
+        margin-right: 0;
+    }
+
+    .section::before {
+        display: none;
+    }
+
+    hr {
+        display: none;
+    }
+
+}
+
+/* Tablet Layout */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Layout */
+    .container {
+        grid-template-columns: 2fr 1fr;
+        grid-template-rows: auto auto;
+    }
+    
+    /* Column positioning */
+    .column:nth-child(1) { 
+        order: 2;
+        grid-column: 2;
+        grid-row: 1;
+        /* Remove right border since it's at the end of row */
+        border-right: none;
+        padding-right: 0;
+        margin-right: 0;
+    }
+    
+    .column:nth-child(2) { 
+        order: 1;
+        grid-column: 1;
+        grid-row: 1;
+    }
+    
+    .column:nth-child(3) { 
+        order: 3;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        /* Remove right border since it spans full width */
+        border-right: none;
+        padding-right: 0;
+        margin-right: 0;
+    }
+
+    /* Section styling */
+    .section:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
+
+    .nyt-logo img {
+        width: 300px;
+    }
+
+    body {
+        font-size: 18px;
+    }
+}
+
+
+/* Desktop Layout */
+@media (min-width: 1024px) {
+    /* Layout */
+    .container {
+        grid-template-columns: 1fr 2fr 1fr;
+        grid-template-rows: auto;
+    }
+    
+    /* Column positioning */
+    .column:nth-child(1) { 
+        order: 1;
+        grid-column: 1;
+        grid-row: 1;
+    }
+    
+    .column:nth-child(2) { 
+        order: 2;
+        grid-column: 2;
+        grid-row: 1;
+    }
+    
+    .column:nth-child(3) { 
+        order: 3;
+        grid-column: 3;
+        grid-row: 1;
+        border-right: none;
+        padding-right: 0;
+        margin-right: 0;
+    }
+
+    /* Remove top border from first section in each column */
+    .column .section:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
+
+    /* Logo scaling */
+    .nyt-logo img {
+        width: 400px;
+    }
+
+    /* Typography scaling */
+    body {
+        font-size: 20px;
+    }
+}
+
+
+/* ==========================================================================
+   Error and Loading css
+   ========================================================================== */
+.loading {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #666;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+  
+.error {
+    text-align: center;
+    padding: 20px;
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 20px auto;
+    max-width: 600px;
 }

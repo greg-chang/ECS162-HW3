@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getFormattedDate } from '../utils/dateUtils';
+  import './Header.css';
   
   // Date formatting
   let currentDate: string = '';
@@ -29,6 +30,10 @@
       }
     };
   });
+
+  function handleLogin() {
+    window.location.href = '/login';
+  }
 </script>
 
 <header>
@@ -45,4 +50,5 @@
         </div>
     </div>
     <hr>
+    <button class="login-btn" on:click={handleLogin}>LOG IN</button>
 </header> 

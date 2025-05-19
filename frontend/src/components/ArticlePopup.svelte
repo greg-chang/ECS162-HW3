@@ -162,19 +162,22 @@
         </div>
         <hr class="popup-divider" />
         <div class="comments-header">
+          <div class="comments-header-title">
             <span class="comments-title">Comments</span>
             <span class="comments-count">{comments.length}</span>
-        </div>
-        <div class="comments-section">
-          {#if error && !isLoading}
-            <div class="error">{error}</div>
-          {/if}
-          <AddComment
+          </div>
+            <AddComment
             bind:value={newComment}
             loading={isLoading}
             error={error && !isLoading ? error : ''}
             on:submit={() => addComment()}
           />
+        </div>
+        <div class="comments-section">
+          {#if error && !isLoading}
+            <div class="error">{error}</div>
+          {/if}
+          
           {#if isLoading}
             <div class="loading">Loading comments...</div>
           {:else if comments.length === 0}
@@ -209,6 +212,19 @@
 
 
 <style lang="scss">
+
+.comments-header {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.comments-header-title {
+  font-size: 2rem;
+  font-weight: bold;
+  padding-bottom: 1rem;
+}
+
+
 .article-popup-root {
   font-family: Arial, Helvetica, sans-serif;
   // Optionally, override for headings, etc.
@@ -259,6 +275,20 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+}
+
+/* Responsive: Fullscreen on mobile */
+@media (max-width: 600px) {
+  .popup-panel {
+    left: 0;
+    right: 0;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    padding: 1rem 1rem;
+  }
 }
 
 .popup-title {

@@ -158,5 +158,7 @@
     </section>
 </main>
 
-<ArticlePopup isOpen={isPopupOpen} article={selectedArticle} on:close={closePopup} />
+<div class="popup-panel {isPopupOpen ? 'slide-in' : ''}" on:click|stopPropagation>
+  <ArticlePopup isOpen={isPopupOpen} article={selectedArticle} on:close={closePopup} />
+</div>
 

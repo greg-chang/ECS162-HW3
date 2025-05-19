@@ -2,6 +2,7 @@
   import './app.css';
   import { onMount } from 'svelte';
   import Header from './components/Header.svelte';
+  import ArticlePopup from './components/ArticlePopup.svelte';
 
   let currentPage = 0;
   let isLoading = false;
@@ -31,6 +32,8 @@
   
   let articles: Article[] = [];
   let locations = ['Sacramento', 'Davis'];
+  let selectedArticle: Article | null = null;
+  let isPopupOpen = false;
 
   onMount(() => {
     fetchData();
@@ -109,13 +112,16 @@
     }
   }
 
-  // Helper function to get the image URL from an article's multimedia
-  function getArticleImage(article: Article): string {
-    if (article.multimedia && article.multimedia.default) {
-      return article.multimedia.default.url;
-    }
-    return '/image1.png'; // Fallback image
+  function openArticle(article: Article) {
+    selectedArticle = article;
+    isPopupOpen = true;
   }
+
+  function closePopup() {
+    isPopupOpen = false;
+    selectedArticle = null;
+  }
+
 </script>
 
 <main>
@@ -126,7 +132,7 @@
         {#each articles as article, i}
           <div class="column">
             <div class="section">
-              <div class="section-content">
+              <div class="section-content" on:click={() => openArticle(article)} style="cursor: pointer;">
                 {#if article.multimedia && article.multimedia.default}
                   <img src={article.multimedia.default.url} alt={article.headline.main}>
                 {:else}
@@ -151,4 +157,6 @@
       {/if}
     </section>
 </main>
+
+<ArticlePopup isOpen={isPopupOpen} article={selectedArticle} on:close={closePopup} />
 

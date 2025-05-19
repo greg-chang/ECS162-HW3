@@ -49,6 +49,13 @@ p {
     padding: 20px 0;
 }
 
+.date-and-logo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.2rem;
+}
+
 .date-display {
     position: absolute;
     left: 20px;
@@ -112,6 +119,171 @@ hr {
     margin-left: 20px;
     margin-right: 20px;
     margin-bottom: 20px;
+}
+
+.login-btn {
+    position: absolute;
+    top: 0.3rem;
+    right: 0.5rem;
+    background: #567B94;
+    color: #FFF;
+    border: none;
+    border-radius: 5px;
+    padding: 0.08rem 0.35rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    transition: background 0.2s, padding 0.2s, font-size 0.2s;
+    font-size: 0.62rem;
+    line-height: 1.1;
+    min-width: 38px;
+    min-height: 22px;
+    text-decoration: none;
+}
+.login-btn:hover {
+    background: #d0dbe5;
+}
+header {
+    position: relative;
+}
+.account-trigger {
+    position: absolute;
+    top: 0.3rem;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 0.2rem 1.1rem 0.2rem 0.9rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    font-size: 1.1em;
+    cursor: pointer;
+    z-index: 10;
+}
+.account-label {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.7rem;
+    color: black;
+    font-weight: bold;
+    margin-right: 0.3em;
+    color: black;
+    display: flex;
+    align-items: center;
+    letter-spacing: normal;
+}
+.caret-img {
+    width: 18px;
+    height: 18px;
+    display: block;
+    margin-left: 0.2em;
+    margin-bottom: 1px;
+}
+.account-modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.2);
+    z-index: 100;
+}
+.account-modal {
+    position: fixed;
+    top: 0; right: 0;
+    width: 350px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.15);
+    z-index: 101;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1.2rem;
+    animation: slideIn 0.2s;
+}
+@keyframes slideIn {
+    from { right: -400px; }
+    to { right: 0; }
+}
+.account-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0;
+    padding: 0 1rem;
+}
+.account-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+    justify-content: space-between;
+    padding: 0.5rem 1rem 1.5rem 1rem;
+}
+.logout-container {
+    margin-top: auto;
+    padding: 0;
+}
+.close-btn {
+    position: relative;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.account-modal-email {
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin: 0;
+    text-align: left;
+    flex: 1;
+}
+.account-modal-greeting {
+    font-size: 1.3em;
+    margin-bottom: 2.5rem;
+}
+.logout-btn {
+    background: none;
+    border: none;
+    color: #222;
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5rem 0;
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+}
+.logout-btn:hover {
+    text-decoration: underline;
+}
+/* Tablet */
+@media (min-width: 768px) {
+    .login-btn {
+      padding: 0.4rem 1rem;
+      font-size: 1rem;
+      top: 1.5rem;
+      right: 2rem;
+      min-width: unset;
+      min-height: unset;
+    }
+    .account-label {
+      font-size: 0.9rem;
+    }
+}
+/* Desktop */
+@media (min-width: 1024px) {
+    .login-btn {
+      padding: 0.5rem 1.2rem;
+      font-size: 1.1rem;
+      top: 1.5rem;
+      right: 2rem;
+    }
+    .account-label {
+      font-size: 1.1rem;
+    }
 }
 
 /* ==========================================================================
@@ -346,3 +518,10 @@ hr {
     margin: 20px auto;
     max-width: 600px;
 }
+
+.account-modal hr {
+    margin: 0.3rem 0;
+    width: 100%;
+}
+
+

@@ -16,6 +16,12 @@ class CommentService:
         if not comment.article_id or not comment.user_id or not comment.content:
             raise ValueError("article_id, user_id, and content are required")
         
+        # If this is a reply, validate that the parent comment exists
+        if comment.parent_uuid:
+            parent_comment = self.comments.find_one({"uuid": comment.parent_uuid})
+            if not parent_comment:
+                raise ValueError("Parent comment not found")
+        
         # Ensure created_at is set
         if not comment.created_at:
             comment.created_at = datetime.utcnow()
@@ -42,12 +48,13 @@ class CommentService:
             # Convert MongoDB document to dict and ensure _id is included as string
             comment_dict = {
                 '_id': str(doc['_id']),
-                'uuid': doc['uuid'], 
+                'uuid': doc['uuid'],
                 'article_id': doc['article_id'],
                 'user_id': doc['user_id'],
                 'content': doc['content'],
                 'created_at': doc['created_at'],
-                'updated_at': doc.get('updated_at')
+                'updated_at': doc.get('updated_at'),
+                'parent_uuid': doc.get('parent_uuid')
             }
             comments.append(Comment(**comment_dict))
         return comments
@@ -103,4 +110,38 @@ class CommentService:
             return result.deleted_count > 0
         except Exception as e:
             print(f"Error during delete operation: {str(e)}")
-            raise ValueError(f"Failed to delete comment: {str(e)}") 
+            raise ValueError(f"Failed to delete comment: {str(e)}")
+
+    def get_replies(self, parent_uuid: str) -> List[Comment]:
+        """Get all replies for a specific comment"""
+        cursor = self.comments.find({"parent_uuid": parent_uuid}).sort("created_at", 1)
+        replies = []
+        for doc in cursor:
+            comment_dict = {
+                '_id': str(doc['_id']),
+                'uuid': doc['uuid'],
+                'parent_uuid': doc.get('parent_uuid'),
+                'article_id': doc['article_id'],
+                'user_id': doc['user_id'],
+                'content': doc['content'],
+                'created_at': doc['created_at'],
+                'updated_at': doc.get('updated_at')
+            }
+            replies.append(Comment(**comment_dict))
+        return replies
+
+    def delete_comment_and_replies(self, comment_uuid: str) -> int:
+        """
+        Recursively delete a comment and all its replies.
+        Returns the total number of deleted comments.
+        """
+        # Find all direct replies
+        replies = list(self.comments.find({"parent_uuid": comment_uuid}))
+        count = 0
+        for reply in replies:
+            # Recursively delete each reply and its children
+            count += self.delete_comment_and_replies(reply['uuid'])
+        # Delete the comment itself
+        result = self.comments.delete_one({"uuid": comment_uuid})
+        count += result.deleted_count
+        return count 

@@ -101,7 +101,8 @@ def create_comment(article_id):
         comment = Comment(
             article_id=clean_id,
             user_id=data.get('user_id'),
-            content=data.get('content')
+            content=data.get('content'),
+            parent_uuid=data.get('parent_uuid')
         )
         created_comment = comment_service.create_comment(comment)
         return jsonify(created_comment.dict()), 201
@@ -122,7 +123,7 @@ def update_comment(comment_id):
 @app.route('/api/comments/<comment_uuid>', methods=['DELETE'])
 def delete_comment(comment_uuid):
     try:
-        success = comment_service.delete_comment(comment_uuid)
+        success = comment_service.delete_comment_and_replies(comment_uuid)
         if success:
             return jsonify({"message": "Comment deleted"}), 200
         else:

@@ -153,10 +153,10 @@ header {
     right: 0.5rem;
     display: flex;
     align-items: center;
-    background: #ffffff;
+    background: transparent;
     border-radius: 20px;
     padding: 0.2rem 1.1rem 0.2rem 0.9rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    box-shadow: none;
     font-size: 1.1em;
     cursor: pointer;
     z-index: 10;
@@ -497,6 +497,54 @@ header {
     }
 }
 
+@media (max-width: 768px) {
+    .account-modal {
+        width: 300px;
+        padding: 1.2rem 1rem;
+    }
+    
+    .account-modal-email {
+        font-size: 0.8rem;
+    }
+    
+    .account-modal-greeting {
+        font-size: 1.1em;
+    }
+    
+    .logout-btn {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .account-modal {
+        width: 100%;
+        padding: 1rem 0.8rem;
+    }
+    
+    .account-modal-header {
+        padding: 0 0.8rem;
+    }
+    
+    .account-modal-content {
+        padding: 0.5rem 0.8rem 1.5rem 0.8rem;
+    }
+
+    .account-modal hr {
+        display: block;
+        margin: 0.3rem 0;
+        width: 100%;
+    }
+
+    .account-trigger {
+        right: 0.8rem;
+    }
+
+    .nyt-logo img {
+        width: 150px;
+    }
+}
+
 
 /* ==========================================================================
    Error and Loading css
@@ -523,5 +571,3 @@ header {
     margin: 0.3rem 0;
     width: 100%;
 }
-
-

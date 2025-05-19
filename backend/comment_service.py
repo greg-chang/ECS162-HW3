@@ -16,6 +16,12 @@ class CommentService:
         if not comment.article_id or not comment.user_id or not comment.content:
             raise ValueError("article_id, user_id, and content are required")
         
+        # If this is a reply, validate that the parent comment exists
+        if comment.parent_uuid:
+            parent_comment = self.comments.find_one({"uuid": comment.parent_uuid})
+            if not parent_comment:
+                raise ValueError("Parent comment not found")
+        
         # Ensure created_at is set
         if not comment.created_at:
             comment.created_at = datetime.utcnow()
@@ -103,4 +109,22 @@ class CommentService:
             return result.deleted_count > 0
         except Exception as e:
             print(f"Error during delete operation: {str(e)}")
-            raise ValueError(f"Failed to delete comment: {str(e)}") 
+            raise ValueError(f"Failed to delete comment: {str(e)}")
+
+    def get_replies(self, parent_uuid: str) -> List[Comment]:
+        """Get all replies for a specific comment"""
+        cursor = self.comments.find({"parent_uuid": parent_uuid}).sort("created_at", 1)
+        replies = []
+        for doc in cursor:
+            comment_dict = {
+                '_id': str(doc['_id']),
+                'uuid': doc['uuid'],
+                'parent_uuid': doc.get('parent_uuid'),
+                'article_id': doc['article_id'],
+                'user_id': doc['user_id'],
+                'content': doc['content'],
+                'created_at': doc['created_at'],
+                'updated_at': doc.get('updated_at')
+            }
+            replies.append(Comment(**comment_dict))
+        return replies 

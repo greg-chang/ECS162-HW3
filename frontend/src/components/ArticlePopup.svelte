@@ -158,23 +158,26 @@
           <div class="popup-title" title={article.headline.main}>
             {article.headline.main}
           </div>
-          <button class="close-button" on:click={closePopup}>x</button>
+          <button class="close-btn" on:click={closePopup} aria-label="Close">&times;</button>
         </div>
         <hr class="popup-divider" />
         <div class="comments-header">
+          <div class="comments-header-title">
             <span class="comments-title">Comments</span>
             <span class="comments-count">{comments.length}</span>
-        </div>
-        <div class="comments-section">
-          {#if error && !isLoading}
-            <div class="error">{error}</div>
-          {/if}
-          <AddComment
+          </div>
+            <AddComment
             bind:value={newComment}
             loading={isLoading}
             error={error && !isLoading ? error : ''}
             on:submit={() => addComment()}
           />
+        </div>
+        <div class="comments-section">
+          {#if error && !isLoading}
+            <div class="error">{error}</div>
+          {/if}
+          
           {#if isLoading}
             <div class="loading">Loading comments...</div>
           {:else if comments.length === 0}
@@ -207,111 +210,3 @@
   {/if}
 </div>
 
-
-<style lang="scss">
-.article-popup-root {
-  font-family: Arial, Helvetica, sans-serif;
-
-  // Optionally, override for headings, etc.
-  h1, h2, h3, .comments-title {
-    font-family: Arial, Helvetica, sans-serif;
-  }
-}
-
-
-.comments-title {
-  font-size: 2rem;
-  font-weight: bold;
-  padding-bottom: 1rem;
-}
-
-.comment-content {
-  font-size: 1.1rem;
-}
-.comments-count {
-  font-size: 1.75rem;
-}
-.popup-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1000;
-  /* Keep overlay, but don't center content */
-}
-
-.popup-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 400px;
-  max-width: 100vw;
-  height: 100vh;
-  background: #fff;
-  box-shadow: -2px 0 8px rgba(0,0,0,0.2);
-  z-index: 1001;
-  overflow-y: auto;
-  padding: 2rem 1.5rem;
-  border-radius: 0;
-  transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-  display: flex;
-  flex-direction: column;
-}
-
-.popup-title {
-  font-size: 2rem;
-  font-weight: bold;
-  padding-bottom: 1rem;
-}
-
-.slide-in {
-  transform: translateX(0);
-}
-
-.close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-}
-
-.article-content {
-  margin-bottom: 2rem;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-  margin: 1rem 0;
-}
-
-.caption {
-  font-style: italic;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.read-more {
-  display: inline-block;
-  margin-top: 1rem;
-  color: #007bff;
-  text-decoration: none;
-}
-
-.read-more:hover {
-  text-decoration: underline;
-}
-
-.article-title {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  line-height: 1.2;
-}
-
-</style> 

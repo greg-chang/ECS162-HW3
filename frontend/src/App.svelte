@@ -158,5 +158,13 @@
     </section>
 </main>
 
-<ArticlePopup isOpen={isPopupOpen} article={selectedArticle} on:close={closePopup} />
+<div class="popup-panel {isPopupOpen ? 'slide-in' : ''}" on:click|stopPropagation>
+  <div class="popup-header">
+    <div class="popup-title" title={selectedArticle?.headline.main}>
+      {selectedArticle?.headline.main}
+    </div>
+    <button class="close-btn" on:click={closePopup} aria-label="Close">&times;</button>
+  </div>
+  <ArticlePopup isOpen={isPopupOpen} article={selectedArticle} on:close={closePopup} />
+</div>
 

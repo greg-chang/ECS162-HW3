@@ -587,6 +587,7 @@ header {
   font-size: 2rem;
   font-weight: bold;
   padding-bottom: 1rem;
+  padding-right: 1rem;
 }
 .article-popup-root .comments-header-title {
   font-size: 2rem;
@@ -607,6 +608,24 @@ header {
   background: rgba(0, 0, 0, 0.4);
   z-index: 1000;
 }
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 0.5rem;
+    transition: color 0.2s;
+  }
+  .close-btn:hover {
+    color: #222;
+  }
+
+  
 @media (max-width: 600px) {
   .popup-panel,
   .article-popup-root .popup-panel {

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render } from '@testing-library/svelte';
-import App from '../App.svelte';
+import { fetchArticles, fetchApiKey } from './apiUtils';
 
 describe('API Integration', () => {
   const mockApiKey = 'test-api-key';
@@ -22,6 +21,18 @@ describe('API Integration', () => {
           json: () => Promise.resolve({ apiKey: mockApiKey })
         });
       }
+      if (url === '/api/me') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            user: {
+              id: '123',
+              username: 'testuser',
+              email: 'test@example.com'
+            }
+          })
+        });
+      }
       if (url.includes('api.nytimes.com')) {
         return Promise.resolve({
           ok: true,
@@ -41,15 +52,37 @@ describe('API Integration', () => {
     vi.clearAllMocks();
   });
 
-  it('verifies API calls are made', async () => {
-    render(App);
+  it('fetches API key successfully', async () => {
+    const result = await fetchApiKey();
+    expect(result).toBe(mockApiKey);
+    expect(fetch).toHaveBeenCalledWith('/api/key');
+  });
+
+  it('fetches articles successfully', async () => {
+    const result = await fetchArticles(mockApiKey);
+    expect(result.docs).toEqual(mockArticles);
+    expect(result.metadata.hits).toBe(100);
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('api.nytimes.com'));
+  });
+
+  it('handles API errors gracefully', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('API Error'));
+    await expect(fetchArticles(mockApiKey)).rejects.toThrow('API Error');
+  });
+
+  it('fetches user data from /api/me', async () => {
+    const response = await fetch('/api/me');
+    const data = await response.json();
     
-    // Wait for API calls to complete
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const fetchCalls = (fetch as any).mock.calls;
-    
-    // Verify both API calls were made
-    expect(fetchCalls.some((call: [string, ...any[]]) => call[0] === '/api/key')).toBe(true);
+    expect(data.user).toBeDefined();
+    expect(data.user.id).toBe('123');
+    expect(data.user.username).toBe('testuser');
+    expect(data.user.email).toBe('test@example.com');
+    expect(fetch).toHaveBeenCalledWith('/api/me');
+  });
+
+  it('handles /api/me errors gracefully', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('API Error'));
+    await expect(fetch('/api/me')).rejects.toThrow('API Error');
   });
 }); 

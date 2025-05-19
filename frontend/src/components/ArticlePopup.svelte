@@ -211,13 +211,14 @@
 <style lang="scss">
 .article-popup-root {
   font-family: Arial, Helvetica, sans-serif;
-
   // Optionally, override for headings, etc.
   h1, h2, h3, .comments-title {
     font-family: Arial, Helvetica, sans-serif;
   }
 }
-
+.comment-list {
+  margin-bottom: 20px;
+}
 
 .comments-title {
   font-size: 2rem;
@@ -246,6 +247,7 @@
   width: 400px;
   max-width: 100vw;
   height: 100vh;
+  max-height: 100vh;
   background: #fff;
   box-shadow: -2px 0 8px rgba(0,0,0,0.2);
   z-index: 1001;
@@ -256,6 +258,7 @@
   transition: transform 0.3s cubic-bezier(.4,0,.2,1);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .popup-title {

@@ -619,6 +619,13 @@ header {
 
 /* COMMENT THREAD */
 
+.comment-divider {
+    border: none;
+    border-top: 2px solid #eee;
+    margin: 2rem 0 1rem 0;
+    width: 100%;
+  }
+
 .comment-thread-root .comment-thread {
   margin-bottom: 2rem;
 }

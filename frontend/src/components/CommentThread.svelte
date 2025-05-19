@@ -59,5 +59,8 @@
           {/each}
         </div>
       {/if}
+      {#if !comment.parent_uuid}
+        <hr class="comment-divider" />
+      {/if}
     </div>
 </div>

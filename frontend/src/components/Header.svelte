@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getFormattedDate } from '../utils/dateUtils';
-  import './Header.css';
+  import '../app.css';
   
   let user: { email?: string; name?: string } | null = null;
   let loading = true;
@@ -24,6 +24,8 @@
 
   let intervalId: number;
 
+  let showAccountModal = false;
+
   onMount(() => {
     updateDate();
     intervalId = window.setInterval(updateDate, 60000);
@@ -32,11 +34,7 @@
       credentials: 'include'
     })
       .then(async (res) => {
-        if (res.ok) {
-          user = await res.json();
-        } else {
-          user = null;
-        }
+        user = res.ok ? await res.json() : null;
       })
       .catch(() => {
         user = null;
@@ -53,33 +51,49 @@
 </script>
 
 <header>
-    <div class="header-container">
-        <div class="date-display">
-            <span id="current-date">
-                <span class="day">{dayName}</span>, 
-                <span class="date">{monthName} {dayOfMonth}, {year}</span>
-            </span>
-            <p>Sacramento and Davis Papers</p>
-        </div>
-        <div class="nyt-logo">
-            <img src="/nyt-logo.png" alt="New York Times Logo">
-        </div>
+  <div class="header-container">
+    <div class="date-and-logo">
+      <div class="date-display">
+        <span class="day">{dayName}</span>, 
+        <span class="date">{monthName} {dayOfMonth}, {year}</span>
+        <p>Sacramento and Davis Papers</p>
+      </div>
+      <div class="nyt-logo">
+        <img src="/nyt-logo.png" alt="New York Times Logo" />
+      </div>
     </div>
-    <hr>
+    
     {#if loading}
     {:else if user}
-      <div class="account-trigger">
-        <span class="account-initial">{user.name ? user.name[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : '?')}</span>
-        <span class="account-email">{user.email ?? ''}</span>
+      <div class="account-trigger" on:click={() => showAccountModal = true} tabindex="0">
+        <span class="account-label">Account</span>
+        <img src="/caret_down.png" alt="caret" class="caret-img" />
       </div>
-      <button
-        class="login-btn"
-        on:click={() => window.location.href = 'http://localhost:8000/logout'}
-      >LOG OUT</button>
     {:else}
-      <button
-        class="login-btn"
-        on:click={() => window.location.href = 'http://localhost:8000/login'}
-      >LOG IN</button>
+      <button class="login-btn" on:click={() => window.location.href = 'http://localhost:8000/login'}>
+        LOG IN
+      </button>
     {/if}
+  </div>
+
+  <hr />
+
+  {#if showAccountModal}
+    <div class="account-modal-backdrop" on:click={() => showAccountModal = false}></div>
+    <div class="account-modal">
+      <div class="account-modal-header">
+        <div class="account-modal-email">{user?.email}</div>
+        <button class="close-btn" on:click={() => showAccountModal = false}>×</button>
+      </div>
+      <hr />
+      <div class="account-modal-content">
+        <div class="account-modal-greeting">Good afternoon.</div>
+        <div class="logout-container">
+          <button class="logout-btn" on:click={() => window.location.href = 'http://localhost:8000/logout'}>
+            Log out
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </header> 

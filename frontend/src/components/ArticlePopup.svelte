@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
   import AddComment from './AddComment.svelte';
+  import CommentThread from './CommentThread.svelte';
 
   export let isOpen: boolean;
   export let article: any;
@@ -20,38 +21,21 @@
     content: string;
     created_at: string;
     updated_at?: string;
+    parent_uuid?: string;
   }
 
   let comments: Comment[] = [];
   let newComment = '';
+  let replyContent = '';  // Separate variable for reply content
   let isLoading = false;
   let error = '';
+  let replyingTo: string | null = null;  // Store the UUID of the comment being replied to
+  let user: any = null;
 
   function cleanArticleId(id: string): string {
     return id.replace(/[^a-zA-Z0-9-]/g, '_');
   }
 
-  function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
-    } else if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
-    } else if (diffInHours < 48) {
-      return 'Yesterday';
-    } else {
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-  }
 
   $: if (isOpen && article) {
     fetchComments();
@@ -66,6 +50,7 @@
       const response = await fetch(`http://localhost:8000/api/articles/${cleanId}/comments`);
       if (!response.ok) throw new Error('Failed to fetch comments');
       comments = await response.json();
+      console.log(comments);
     } catch (e) {
       error = 'Failed to load comments';
       console.error(e);
@@ -81,22 +66,53 @@
       const cleanId = cleanArticleId(article._id);
       const response = await fetch(`http://localhost:8000/api/articles/${cleanId}/comments`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: newComment,
-          user_id: 'anonymous' // TODO: Replace with actual user ID from auth
+          user_id: user?.name || user?.email || 'anonymous',
         }),
       });
       if (!response.ok) throw new Error('Failed to add comment');
-      const comment = await response.json();
-      comments = [comment, ...comments];
       newComment = '';
+      await fetchComments();
     } catch (e) {
       error = 'Failed to add comment';
       console.error(e);
     }
+  }
+
+  async function addReply(content: string, parentUuid: string) {
+    if (!content.trim() || !parentUuid) return;
+    try {
+      error = '';
+      const cleanId = cleanArticleId(article._id);
+      const response = await fetch(`http://localhost:8000/api/articles/${cleanId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: content,
+          user_id: 'anonymous',
+          parent_uuid: parentUuid
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to add reply');
+      replyContent = '';
+      replyingTo = null;
+      await fetchComments();
+    } catch (e) {
+      error = 'Failed to add reply';
+      console.error(e);
+    }
+  }
+
+  function handleReply(commentUuid: string) {
+    replyingTo = commentUuid;
+    replyContent = '';  // Clear any previous reply content
+  }
+
+  function handleCancelReply() {
+    replyingTo = null;
+    replyContent = '';
   }
 
   async function deleteComment(comment: Comment) {
@@ -110,12 +126,29 @@
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to delete comment');
       }
-      comments = comments.filter(c => c.uuid !== comment.uuid);
+      await fetchComments();
     } catch (e: any) {
       error = e.message || 'Failed to delete comment';
       console.error('Delete error:', e);
     }
   }
+
+  onMount(() => {
+    fetch('http://localhost:8000/api/me', {
+      credentials: 'include'
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          user = await res.json();
+          console.log(user);
+        } else {
+          user = null;
+        }
+      })
+      .catch(() => {
+        user = null;
+      });
+  });
 </script>
 <div class="article-popup-root">
     {#if isOpen && article}
@@ -148,18 +181,23 @@
             <p class="no-comments">No comments yet. Be the first to comment!</p>
           {:else}
             <div class="comments-list">
-              {#each comments as comment, index (comment.uuid || index)}
-                <div class="comment">
-                  <div class="comment-header">
-                    <div class="pfp-circle">a</div>
-                    <span class="comment-username">{comment.user_id}</span>
-                  </div>
-                  <div class="comment-content">{comment.content}</div>
-                  <div class="comment-actions">
-                    <button class="reply-btn" type="button" on:click={() => console.log('hello')}>Reply</button>
+              {#each comments.filter(c => !c.parent_uuid) as comment}
+                <CommentThread
+                  comment={comment}
+                  allComments={comments}
+                  onReply={handleReply}
+                  onDelete={deleteComment}
+                  replyingTo={replyingTo}
+                  replyContent={replyContent}
+                  setReplyContent={val => replyContent = val}
+                  addReply={addReply}
+                  handleCancelReply={handleCancelReply}
+                  user={user}
+                >
+                  {#if user && (user.name === 'admin' || user.name === 'moderator')}
                     <button class="delete-btn" type="button" on:click={() => deleteComment(comment)}>Delete</button>
-                  </div>
-                </div>
+                  {/if}
+                </CommentThread>
               {/each}
             </div>
           {/if}
@@ -276,76 +314,4 @@ img {
   line-height: 1.2;
 }
 
-.comments-divider {
-  margin: 2rem 0 1rem 0;
-  border: none;
-  border-top: 1px solid #eee;
-}
-
-.comment {
-  margin-bottom: 2rem;
-}
-.comment-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.25rem;
-}
-.pfp-circle {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: #bbb;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-.comment-username {
-  font-weight: bold;
-  font-size: 1.25rem;
-  color: #111;
-}
-.comment-content {
-  margin-bottom: 0.5rem;
-  word-break: break-word;
-}
-.comment-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.5rem;
-}
-.reply-btn {
-  background: none;
-  border: none;
-  color: #6c859e;
-  font-weight: 700;
-  font-size: 1.05rem;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-}
-.reply-btn:hover {
-  text-decoration: underline;
-}
-.delete-btn {
-  background: none;
-  border: none;
-  color: #666;
-  font-weight: 700;
-  font-size: 1.05rem;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-  transition: color 0.15s;
-}
-.delete-btn:hover {
-  text-decoration: underline;
-  color: #222;
-}
 </style> 

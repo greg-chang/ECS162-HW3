@@ -48,12 +48,13 @@ class CommentService:
             # Convert MongoDB document to dict and ensure _id is included as string
             comment_dict = {
                 '_id': str(doc['_id']),
-                'uuid': doc['uuid'], 
+                'uuid': doc['uuid'],
                 'article_id': doc['article_id'],
                 'user_id': doc['user_id'],
                 'content': doc['content'],
                 'created_at': doc['created_at'],
-                'updated_at': doc.get('updated_at')
+                'updated_at': doc.get('updated_at'),
+                'parent_uuid': doc.get('parent_uuid')
             }
             comments.append(Comment(**comment_dict))
         return comments
@@ -127,4 +128,20 @@ class CommentService:
                 'updated_at': doc.get('updated_at')
             }
             replies.append(Comment(**comment_dict))
-        return replies 
+        return replies
+
+    def delete_comment_and_replies(self, comment_uuid: str) -> int:
+        """
+        Recursively delete a comment and all its replies.
+        Returns the total number of deleted comments.
+        """
+        # Find all direct replies
+        replies = list(self.comments.find({"parent_uuid": comment_uuid}))
+        count = 0
+        for reply in replies:
+            # Recursively delete each reply and its children
+            count += self.delete_comment_and_replies(reply['uuid'])
+        # Delete the comment itself
+        result = self.comments.delete_one({"uuid": comment_uuid})
+        count += result.deleted_count
+        return count 

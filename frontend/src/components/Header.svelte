@@ -3,6 +3,9 @@
   import { getFormattedDate } from '../utils/dateUtils';
   import './Header.css';
   
+  let user: { email?: string; name?: string } | null = null;
+  let loading = true;
+
   // Date formatting
   let currentDate: string = '';
   let dayName: string = '';
@@ -24,13 +27,29 @@
   onMount(() => {
     updateDate();
     intervalId = window.setInterval(updateDate, 60000);
+    // Fetch user info
+    fetch('http://localhost:8000/api/me', {
+      credentials: 'include'
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          user = await res.json();
+        } else {
+          user = null;
+        }
+      })
+      .catch(() => {
+        user = null;
+      })
+      .finally(() => {
+        loading = false;
+      });
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
       }
     };
   });
-
 </script>
 
 <header>
@@ -47,5 +66,20 @@
         </div>
     </div>
     <hr>
-    <a class="login-btn" href="/login">LOG IN</a>
+    {#if loading}
+    {:else if user}
+      <div class="account-trigger">
+        <span class="account-initial">{user.name ? user.name[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : '?')}</span>
+        <span class="account-email">{user.email ?? ''}</span>
+      </div>
+      <button
+        class="login-btn"
+        on:click={() => window.location.href = 'http://localhost:8000/logout'}
+      >LOG OUT</button>
+    {:else}
+      <button
+        class="login-btn"
+        on:click={() => window.location.href = 'http://localhost:8000/login'}
+      >LOG IN</button>
+    {/if}
 </header> 
